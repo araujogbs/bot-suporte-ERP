@@ -1,3 +1,6 @@
-prints.db
 .env
+*.db
+*.db.novo
+prints_backup_*.db
 __pycache__/
+*.pyc

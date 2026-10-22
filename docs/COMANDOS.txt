@@ -1,0 +1,96 @@
+COMANDOS DO BOT "ACHA ERROS"
+=============================
+
+Todos os comandos começam com ! e valem dentro do servidor.
+Para ver a lista no próprio Discord: !ajuda
+
+
+1) BUSCAR UM ERRO
+-----------------
+
+!buscar <texto do erro>
+    Procura prints com esse texto. Acentos e letras maiúsculas não importam.
+    Quanto mais palavras do erro, melhor.
+    Exemplos:
+        !buscar 241 Rejeição número da faixa já utilizado
+        !buscar o tipo do endereço do destinatario na nfs é obrigatorio
+
+!buscar  (com o print anexado)
+    Anexe o print na mensagem e escreva !buscar. O bot lê o print e procura
+    os erros parecidos que já apareceram.
+
+!buscar  (respondendo a um print)
+    Clique em Responder em um print do chat e escreva !buscar.
+
+!buscar <texto>  (com o print anexado)
+    Junta o texto digitado com o que o bot leu no print.
+
+    A resposta mostra os 5 prints mais parecidos, com a data, o link para
+    abrir a mensagem original e, quando existir, a solução registrada.
+
+
+2) REGISTRAR A SOLUÇÃO DE UM ERRO
+---------------------------------
+
+A solução fica ligada ao print em que foi registrada e aparece no !buscar.
+Sempre RESPONDA diretamente à mensagem que tem o print.
+
+!solucao <como resolveu>
+    Clique em Responder no print e escreva, por exemplo:
+        !solucao Reiniciar o serviço do banco no servidor e abrir o SPICA de novo.
+    O bot reage com 💾 quando salvar.
+
+Reação ✅ (sem comando)
+    1. Responda ao print explicando como resolveu, como num chat normal.
+    2. Clique em ✅ na sua resposta (qualquer pessoa pode reagir).
+    3. O bot reage com 💾 e salva o texto da resposta como solução.
+    Se tirarem o ✅, a solução é removida.
+
+    Se houver mais de uma solução no mesmo print, o !buscar mostra as 2 mais
+    recentes. O texto é cortado em 300 caracteres no resultado.
+
+
+3) INDEXAR OS PRINTS (LER O HISTÓRICO)
+--------------------------------------
+
+Os prints novos o bot lê sozinho. Os comandos abaixo servem para ler o histórico.
+Só uma indexação roda por vez: se outra estiver rodando, o bot avisa.
+
+!indexar [limite]
+    Lê os prints que faltam em todos os canais, tópicos e fóruns.
+    Sem número, lê todas as mensagens. Pula o que já foi lido.
+        !indexar            tudo
+        !indexar 500        as 500 mensagens mais recentes de cada canal
+
+!indexarcanal <#canal> [limite]
+    O mesmo, mas só para um canal (ou tópico, ou fórum).
+        !indexarcanal #erros-nfe
+        !indexarcanal #erros-nfe 1000
+
+!reocr [limite]
+    Relê com o OCR atual os prints que foram lidos com o OCR antigo, os mais
+    recentes primeiro. Leva horas no banco inteiro; pode parar o bot e rodar de
+    novo, ele continua de onde parou.
+        !reocr              todos os pendentes
+        !reocr 500          os 500 mais recentes
+
+
+4) SÓ ADMINISTRADORES
+---------------------
+
+!contarmensagens <#canal> [limite]
+    Conta quantas mensagens o canal tem.
+
+
+5) AJUDA
+--------
+
+!ajuda      (também funciona: !help)
+    Mostra a lista de comandos no Discord.
+
+
+DICAS RÁPIDAS
+-------------
+- Não sabe como escrever o erro? Mande o print junto com !buscar.
+- Resolveu um erro? Responda ao print e use !solucao (ou reaja com ✅).
+- Só os prints de dentro do servidor entram na busca; print apagado sai do banco.

@@ -1,48 +1,36 @@
-# spica-bot-suporte — v1.0
+# bot-suporte-ERP
 
-Bot de Discord para o time de suporte. Ele **lê com OCR os prints de erro** que o pessoal posta nos canais,
-guarda o texto num banco local e permite **buscar um erro** que já apareceu antes.
+Bot de Discord para o time de suporte de um ERP. Ele **lê os prints de erro** postados nos canais (OCR), guarda a
+**solução** de cada erro e deixa a equipe **buscar** o que já foi resolvido.
 
-> Esta é a primeira versão, feita à mão. A versão 2.0 está na branch `main`.
+A primeira versão, mais simples, está na tag [`v1.0`](../../releases/tag/v1.0).
 
-## Como funciona
+## O que ele faz
 
-1. Cada print novo (`png`, `jpg`, `jpeg`, `bmp`, `webp`) postado num canal é lido com o Tesseract.
-2. O texto lido vai para um banco SQLite (`prints.db`), junto com o id da mensagem, do canal e do autor.
-3. O `!buscar` compara o que você digitou com o texto de todos os prints e devolve os 5 mais parecidos, com o link da
-   mensagem original e a data.
+- Lê com OCR todo print novo postado nos canais e guarda o texto (SQLite).
+- `!buscar <texto>` procura prints com aquele erro. Acentos e maiúsculas não importam.
+- `!buscar` com um **print anexado** (ou respondendo a um print) lê a imagem e procura os erros parecidos.
+- Mostra os 5 mais parecidos, com data, link da mensagem original e a **solução registrada**.
+- `!solucao <como resolveu>` (ou reação ✅ na resposta) guarda a solução junto do print.
+- `!indexar`, `!indexarcanal` e `!reocr` leem o histórico dos canais, tópicos e fóruns, e podem ser retomados.
 
-## Comandos
-
-| Comando | O que faz |
-|---|---|
-| `!buscar <texto do erro>` | Mostra até 5 prints parecidos (nota, link e data). Quanto mais palavras do erro, melhor. |
-| `!indexar [limite]` | Lê os prints antigos de todos os canais de texto. Sem número, lê tudo. |
-| `!indexarcanal <id do canal> [limite]` | O mesmo, só para um canal. |
-| `!contarmensagens <id do canal> [limite]` | Conta quantas mensagens o canal tem. |
+A lista de comandos está em [`docs/COMANDOS.txt`](docs/COMANDOS.txt) e no `!ajuda`.
 
 ## Instalação
 
-Precisa de **Python 3.10+** e do **Tesseract** com o idioma português (`por`), instalado em
-`C:\Program Files\Tesseract-OCR\` (ou ajuste o caminho no começo do `bot_erros.py`).
+Precisa de **Python 3.10+** e do **Tesseract** com o idioma português (`por`), em `C:\Program Files\Tesseract-OCR\`
+(ou defina `TESSERACT_CMD`).
 
 ```bash
 pip install -r requirements.txt
 ```
 
-No Discord Developer Portal, ligue as intents **Message Content** e **Server Members** do bot.
+1. No Discord Developer Portal, crie o bot e ligue a intent **Message Content**.
+2. Copie `.env.exemplo` para `.env` e coloque o token em `DISCORD_TOKEN`. O `.env` nunca vai para o Git.
+3. `python bot_erros.py`
 
-O token vai na última linha do `bot_erros.py` (`bot.run("")`). **Nunca publique o arquivo com o token preenchido.**
+Na primeira vez, se já existir um `prints.db` da versão 1, o bot converte o banco e guarda uma cópia. Depois, rode `!indexar`.
 
-```bash
-python bot_erros.py
-```
+## Privacidade
 
-## Limitações desta versão
-
-- Mensagem com vários prints guarda só o último.
-- O OCR roda no mesmo processo do bot e trava tudo durante a indexação.
-- O token fica no código.
-- A busca compara com todos os prints a cada comando e não ignora acentos.
-
-Tudo isso foi resolvido na versão 2.0.
+O `prints.db` guarda o texto dos prints dos clientes. Ele e o `.env` estão no `.gitignore` e não devem ser publicados.
