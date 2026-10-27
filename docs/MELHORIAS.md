@@ -53,6 +53,20 @@ Versão anterior: tag `v1.0`.
 - [x] `requirements.txt` e `.env.exemplo`
 - [x] `!ajuda` em português, docs atualizadas
 
+## Busca de relatórios (`!relatorio`)
+- [x] Catálogo da V8: 92 telas e 280 arquivos (PDFs e exportações), com nome e aba > grupo do menu (`catalogo_relatorios.py`, planilha de revisão `relatorios_v8_rotinas.xlsx`)
+- [x] `!relatorio` com OU (`,`), E (`+`), filtros `pdf` / `excel`, plural e singular, sem acento, "você quis dizer"
+- [x] Mostra a tela, os layouts que batem e o trecho; menu para baixar o arquivo só para quem pediu
+- [x] `!atualizarrelatorios` refaz o catálogo a partir da pasta do levantamento
+- [x] Resposta enxuta: explica o E/OU ("Telas que têm `venda` e `custo`"), até 2 layouts por tela (+N), e por layout só os nomes das colunas que bateram, em negrito, de cada palavra da busca
+- [x] Procura só no título e nos campos (colunas), não nos valores do relatório (`BUSCAR_NO_CONTEUDO` em `relatorios.py` volta a procurar nos valores)
+- [x] Sem datas nos nomes dos layouts; exportação sem título vira "Layout sem título (N colunas)"; cabeçalho de várias linhas lido por inteiro
+- [x] Marcação de "cita imposto" (★) tirada da resposta
+- [x] Incluir a V7: `!relatoriov7` e `!relatoriov8` (o `!relatorio` sem versão só explica o uso). Catálogo com 233 telas da V7 e 226 da V8, todas com nome e aba > grupo reais do menu (lidos dos prints do menu do SPICA)
+- [ ] Incluir o menu inteiro de Relatórios, para avisar "essa tela existe mas não temos arquivo"
+- [ ] Rotinas da planilha 6699 sem arquivo: *Compras Sintética* e *Compras/Entrada de Mercadorias*
+- [ ] `u260` Produtos Por NCM e `u480` Produtos - TUSS citam imposto mas não estão na aba SPICA 8 da planilha 6699
+
 ## Ideias para depois
 - [x] `!reocr [limite]`: relê os prints antigos com o OCR novo, os mais recentes primeiro. Cada print tem uma marca da versão do OCR, então dá para parar e continuar. Mensagens apagadas ou editadas sem o print saem do banco.
 - [ ] `!semsolucao`: listar os erros mais buscados que ainda não têm solução registrada

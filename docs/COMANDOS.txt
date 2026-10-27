@@ -50,7 +50,42 @@ Reação ✅ (sem comando)
     recentes. O texto é cortado em 300 caracteres no resultado.
 
 
-3) INDEXAR OS PRINTS (LER O HISTÓRICO)
+3) QUAL RELATÓRIO OU EXPORTAÇÃO DO SPICA TEM UMA INFORMAÇÃO
+-----------------------------------------------------------
+
+!relatoriov8 <informação>      SPICA 8   (também funciona: !relatoriosv8)
+!relatoriov7 <informação>      SPICA 7   (também funciona: !relatoriosv7)
+    Descobre em quais telas (relatórios e exportações) aparece um campo.
+    Procura no título e nos campos (colunas) de cada layout.
+    O !relatorio sem a versão só mostra como usar os dois comandos.
+
+    Exemplos:
+        !relatoriov8 ipi                      qualquer tela da V8 que tenha IPI
+        !relatoriov7 ipi, icms                tem um OU o outro (V7)
+        !relatoriov8 ipi + icms               tem os DOIS
+        !relatoriov7 venda + custo            os dois campos
+        !relatoriov8 pdf paciente             só PDFs
+        !relatoriov7 excel base de calculo    só exportações (Excel)
+
+    Regras da busca:
+        - vírgula ou "ou"  = um OU outro
+        - sinal de +       = os dois
+        - pdf              = só relatórios em PDF
+        - excel / ods      = só exportações
+        - plural e singular valem igual (fiscal = fiscais)
+        - se você errar a palavra, o bot sugere ("você quis dizer...?")
+
+    A resposta mostra a tela (aba > grupo do menu), quantos layouts têm a
+    informação e os campos que bateram, em negrito. O menu "Baixar um dos
+    arquivos" envia o arquivo só para quem escolher.
+    † = cobertura parcial: nem todos os layouts da tela foram salvos.
+
+!atualizarrelatorios
+    Relê a pasta C:\6699_Levantamento_Inicial (V7 e V8) e refaz o catálogo.
+    Usar quando entrar relatório novo. Leva uns 20 segundos.
+
+
+4) INDEXAR OS PRINTS (LER O HISTÓRICO)
 --------------------------------------
 
 Os prints novos o bot lê sozinho. Os comandos abaixo servem para ler o histórico.
@@ -75,14 +110,14 @@ Só uma indexação roda por vez: se outra estiver rodando, o bot avisa.
         !reocr 500          os 500 mais recentes
 
 
-4) SÓ ADMINISTRADORES
+5) SÓ ADMINISTRADORES
 ---------------------
 
 !contarmensagens <#canal> [limite]
     Conta quantas mensagens o canal tem.
 
 
-5) AJUDA
+6) AJUDA
 --------
 
 !ajuda      (também funciona: !help)
@@ -93,4 +128,5 @@ DICAS RÁPIDAS
 -------------
 - Não sabe como escrever o erro? Mande o print junto com !buscar.
 - Resolveu um erro? Responda ao print e use !solucao (ou reaja com ✅).
+- Procurando o relatório certo? !relatoriov8 (ou !relatoriov7) e o nome do campo.
 - Só os prints de dentro do servidor entram na busca; print apagado sai do banco.

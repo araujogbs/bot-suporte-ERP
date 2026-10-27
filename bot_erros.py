@@ -16,6 +16,7 @@ import pytesseract
 from PIL import Image
 from rapidfuzz import fuzz, process
 
+import relatorios  # busca nos relatórios e exportações do SPICA (catálogo gerado pelo catalogo_relatorios.py)
 
 PASTA = Path(__file__).resolve().parent
 
@@ -182,6 +183,8 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 indexacao_lock = asyncio.Lock()
+relatorios_lock = asyncio.Lock()
+catalogo = relatorios.Catalogo()
 
 
 async def buscar_mensagem(canal_id, message_id):
@@ -327,7 +330,7 @@ async def on_ready():
     conn.commit()
 
     total = cur.execute("SELECT COUNT(*) FROM images").fetchone()[0]
-    print(f"Bot conectado como {bot.user} — {total} prints no banco.")
+    print(f"Bot conectado como {bot.user} — {total} prints no banco, {len(catalogo.rotinas)} telas de relatório no catálogo.")
 
 
 # Pega novos prints automaticamente
@@ -795,6 +798,156 @@ async def reocr(ctx, limite: int = None):
         await progresso.atualizar(forcar=True, fim=True)
 
 
+# BUSCA DE RELATÓRIOS ---------------------------------------------------------------------------------------------------------------------------------------
+ICONE_TIPO = {"pdf": "📄", "exportacao": "📊"}
+LIMITE_EMBED = 5500  # o Discord recusa embed com mais de 6000 caracteres
+
+
+class BaixarArquivo(discord.ui.Select):
+    """Menu com os arquivos da resposta: quem escolhe recebe o arquivo só para ele (não enche o canal)."""
+
+    def __init__(self, arquivos):
+        opcoes = [
+            discord.SelectOption(label=rotulo[:100], value=str(arq.id), description=nome[:100], emoji=ICONE_TIPO[arq.tipo])
+            for nome, arq, rotulo in arquivos[:25]
+        ]
+        super().__init__(placeholder="📎 Baixar um dos arquivos...", options=opcoes)
+
+    async def callback(self, interaction):
+        arq = catalogo.arquivo_por_id(int(self.values[0]))
+        caminho = Path(arq.caminho) if arq else None
+        if caminho is None or not caminho.exists():
+            await interaction.response.send_message("❌ Não achei esse arquivo no computador do bot.", ephemeral=True)
+            return
+        await interaction.response.send_message(file=discord.File(caminho), ephemeral=True)
+
+
+class ArquivosView(discord.ui.View):
+    def __init__(self, arquivos):
+        super().__init__(timeout=900)
+        self.mensagem = None
+        self.add_item(BaixarArquivo(arquivos))
+
+    async def on_timeout(self):
+        for item in self.children:
+            item.disabled = True
+        if self.mensagem is not None:
+            try:
+                await self.mensagem.edit(view=self)
+            except discord.HTTPException:
+                pass
+
+
+def embed_do_relatorio(consulta, busca):
+    """Embed com as telas encontradas e o menu para baixar os arquivos. Retorna (embed, [(tela, arquivo, rótulo)])."""
+    embed = discord.Embed(title=f"📑 {consulta[:200]}", color=0x2B88D8)
+    filtro = {"pdf": " · só PDF", "exportacao": " · só exportações"}.get(busca.tipo, "")
+    expressao = " ou ".join(" e ".join(f"`{termo}`" for termo in grupo) for grupo in busca.grupos)  # `venda` e `custo` / `ipi` ou `icms`
+    embed.description = f"Telas que têm {expressao}\n**{busca.total_telas}** tela(s) · **{busca.total_layouts}** layout(s){filtro}"
+    tamanho = len(embed.title) + len(embed.description)
+    arquivos, mostradas = [], 0
+
+    for achado in busca.achados[:relatorios.MAX_ROTINAS]:
+        rotina = achado.rotina
+        titulo = f"{rotina.nome}{' †' if rotina.parcial else ''}"[:256]
+        linhas = [f"*{rotina.area}* · {achado.casados} de {len(rotina.arquivos)} layout(s)"]
+        rotulos = relatorios.rotulos_unicos([arq for arq, _, _ in achado.layouts])
+        for (arq, _, trecho), rotulo in zip(achado.layouts, rotulos):
+            linha = f"{ICONE_TIPO[arq.tipo]} **{rotulo[:120]}**"
+            if trecho:
+                linha += f"\n> {trecho}"
+            linhas.append(linha)
+        if achado.casados > len(achado.layouts):
+            linhas.append(f"_+ {achado.casados - len(achado.layouts)} layout(s) com isso_")
+        valor = "\n".join(linhas)[:1024]
+        if tamanho + len(titulo) + len(valor) > LIMITE_EMBED:
+            break
+        tamanho += len(titulo) + len(valor)
+        embed.add_field(name=titulo, value=valor, inline=False)
+        arquivos += [(rotina.nome, arq, rotulo) for (arq, _, _), rotulo in zip(achado.layouts, rotulos)]
+        mostradas += 1
+
+    rodape = f"† cobertura parcial: nem todos os layouts desta tela foram salvos · só a {busca.versao}"
+    if busca.total_telas > mostradas:
+        rodape = f"+{busca.total_telas - mostradas} tela(s): refine a busca · " + rodape
+    embed.set_footer(text=rodape)
+    return embed, arquivos
+
+
+@bot.command(aliases=["relatorios"])
+async def relatorio(ctx, *, consulta=""):
+    await ctx.send(
+        "Agora o comando diz a versão do SPICA:\n"
+        f"`!relatoriov8 {consulta.strip() or 'ipi'}` · `!relatoriov7 {consulta.strip() or 'ipi'}`"[:1900]
+    )
+
+
+@bot.command(aliases=["relatoriosv7"])
+async def relatoriov7(ctx, *, consulta=""):
+    await buscar_relatorio(ctx, consulta, "V7")
+
+
+@bot.command(aliases=["relatoriosv8"])
+async def relatoriov8(ctx, *, consulta=""):
+    await buscar_relatorio(ctx, consulta, "V8")
+
+
+async def buscar_relatorio(ctx, consulta, versao):
+    consulta = consulta.strip()
+    comando = f"!relatorio{versao.lower()}"
+    if not catalogo.pronto:
+        await ctx.send("O catálogo de relatórios ainda não foi montado. Use `!atualizarrelatorios`.")
+        return
+
+    async with ctx.typing():
+        busca = await asyncio.to_thread(catalogo.buscar, consulta, versao) if consulta else None
+
+    if busca is None or (not busca.termos and not busca.aviso):
+        await ctx.send(
+            "Qual informação você procura? Exemplos:\n"
+            f"`{comando} ipi` · `{comando} ipi, icms` (um **ou** outro) · `{comando} ipi + icms` (os **dois**)\n"
+            f"`{comando} pdf paciente` · `{comando} excel base de calculo` (filtre por PDF ou exportação)"
+        )
+        return
+    if busca.aviso:
+        await ctx.send(busca.aviso)
+        return
+    if not busca.achados:
+        texto = f"❌ Não achei `{consulta[:100]}` em nenhum relatório ou exportação da {versao}."
+        if busca.sugestao:
+            texto += f"\nVocê quis dizer `{busca.sugestao}`?"
+        await ctx.send(texto + "\n_Só acho o que aparece nos arquivos que foram salvos no levantamento._")
+        return
+
+    embed, arquivos = embed_do_relatorio(consulta, busca)
+    view = ArquivosView(arquivos)
+    view.mensagem = await ctx.send(embed=embed, view=view)
+
+
+@bot.command()
+async def atualizarrelatorios(ctx):
+    """Relê as pastas do levantamento e refaz o catálogo (use quando entrarem relatórios novos)."""
+    if relatorios_lock.locked():
+        await ctx.send("⏳ O catálogo já está sendo atualizado.")
+        return
+    try:
+        from catalogo_relatorios import reconstruir
+    except ImportError as erro:
+        await ctx.send(f"❌ Faltam bibliotecas para ler os arquivos ({erro.name}). Rode `pip install -r requirements.txt`.")
+        return
+
+    async with relatorios_lock:
+        status = await ctx.send("🔄 Lendo os relatórios da V7 e da V8 na pasta do levantamento (leva uns 20 segundos)...")
+        try:
+            telas, arquivos = await asyncio.to_thread(reconstruir)
+        except Exception as erro:
+            traceback.print_exception(type(erro), erro, erro.__traceback__)
+            await status.edit(content="❌ Não consegui ler a pasta dos relatórios. Veja o terminal do bot.")
+            return
+        catalogo.carregar()
+        await status.edit(content=f"✅ Catálogo atualizado: **{telas}** telas e **{arquivos}** arquivos.")
+
+
 # AJUDA ---------------------------------------------------------------------------------------------------------------------------------------
 @bot.command(name="ajuda", aliases=["help"])
 async def ajuda(ctx):
@@ -817,6 +970,12 @@ async def ajuda(ctx):
         "`!indexar [limite]` — lê os prints que faltam de todos os canais\n"
         "`!indexarcanal <#canal> [limite]` — lê os prints de um canal\n"
         "`!reocr [limite]` — relê com o OCR novo os prints que foram lidos com o antigo (pode parar e continuar depois)"
+    ))
+    embed.add_field(name="📑 !relatoriov8 / !relatoriov7 <informação>", inline=False, value=(
+        "Descobre **qual relatório ou exportação do SPICA 8 (ou 7) tem** uma informação.\n"
+        "`!relatoriov8 ipi, icms` — um **ou** outro · `!relatoriov7 ipi + icms` — os **dois**\n"
+        "`!relatoriov8 pdf paciente` só PDFs · `!relatoriov7 excel base de calculo` só exportações\n"
+        "Pelo menu da resposta você baixa o arquivo."
     ))
     embed.add_field(name="🔒 Administradores", inline=False, value=(
         "`!contarmensagens <#canal> [limite]` — conta as mensagens de um canal"

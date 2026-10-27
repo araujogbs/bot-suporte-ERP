@@ -4,3 +4,4 @@
 prints_backup_*.db
 __pycache__/
 *.pyc
+relatorios_*_rotinas.xlsx
