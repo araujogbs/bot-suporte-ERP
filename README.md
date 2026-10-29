@@ -1,46 +1,90 @@
-# bot-suporte-ERP
+# spica-bot-suporte — v2.0
 
-Bot de Discord para o time de suporte de um ERP. Ele **lê os prints de erro** postados nos canais (OCR), guarda a
-**solução** de cada erro e ajuda a **achar em qual relatório ou exportação está uma informação**. Hoje atende o SPICA 7 e 8.
+Bot de Discord para o time de suporte do SPICA. Ele **lê os prints de erro** postados nos canais (OCR), guarda a
+**solução** de cada erro e ajuda a **achar em qual relatório ou exportação do SPICA 7 e 8 está uma informação**, mostrando
+onde a tela fica no menu.
+
+> Projeto de uso interno do suporte. O SPICA é um software da Joinner Sistemas; este projeto não é afiliado nem
+> mantido por ela.
 
 A primeira versão, mais simples, está na tag [`v1.0`](../../releases/tag/v1.0).
 
 ## O que ele faz
 
+### 1. Acha erros que já apareceram
 - Lê com OCR todo print novo postado nos canais e guarda o texto (SQLite).
 - `!buscar <texto>` procura prints com aquele erro. Acentos e maiúsculas não importam.
-- `!buscar` com um **print anexado** (ou respondendo a um print) lê a imagem e procura os erros parecidos.
+- `!buscar` com um **print anexado** (ou respondendo a um print) lê a imagem, usa só as frases do erro e procura os parecidos.
+  Reconhece a janela "Ocorreu um Erro no Sistema" e os códigos de rejeição da Sefaz.
 - Mostra os 5 mais parecidos, com data, link da mensagem original e a **solução registrada**.
-- `!solucao <como resolveu>` (ou reação ✅ na resposta) guarda a solução junto do print.
-- `!relatoriov8 <informação>` e `!relatoriov7 <informação>` dizem em quais telas (relatórios e exportações) aparece um campo.
-  `ipi, icms` = um **ou** outro · `ipi + icms` = os **dois** · `pdf paciente` só PDFs · `excel base de calculo` só exportações.
-  A resposta traz a tela (aba > grupo do menu), os layouts, os campos em negrito e o menu **📎 Baixar um dos arquivos**.
-- `!atualizarrelatorios` relê a pasta dos relatórios e refaz o catálogo (`catalogo_relatorios.py`).
-- `!indexar`, `!indexarcanal` e `!reocr` leem o histórico dos canais, tópicos e fóruns, e podem ser retomados.
 
-A lista de comandos está em [`docs/COMANDOS.txt`](docs/COMANDOS.txt) e no `!ajuda`.
+### 2. Guarda a solução
+- Responda ao print com `!solucao <como resolveu>`, ou responda explicando e reaja com ✅. O bot confirma com 💾.
+- Tirar o ✅ desfaz.
+
+### 3. Acha o relatório certo no SPICA 7 e 8
+- `!relatoriov8 <informação>` e `!relatoriov7 <informação>` dizem em quais telas (relatórios e exportações) aparece um campo.
+  - `ipi, icms` = um **ou** outro · `ipi + icms` = os **dois** · `pdf paciente` só PDFs · `excel base de calculo` só exportações.
+  - Plural e singular valem igual e, se você errar a palavra, ele sugere ("você quis dizer…?").
+- A resposta traz a tela (aba > grupo do menu), os layouts que batem, os campos em negrito e o código do layout impresso no
+  PDF (por exemplo `V020_11`), que distingue layouts com o mesmo nome.
+- O menu **📎 Baixar um dos arquivos** envia o arquivo só para quem escolher.
+- O menu **📍 Ver onde fica no menu** envia o print do menu do SPICA com a tela **circulada em vermelho**.
+- `!atualizarrelatorios` relê a pasta dos relatórios e refaz o catálogo.
+
+### 4. Indexação do histórico
+`!indexar`, `!indexarcanal` e `!reocr` leem o histórico dos canais, tópicos e fóruns. Pulam o que já foi lido e podem ser
+interrompidos e retomados.
+
+A lista completa de comandos está em [`docs/COMANDOS.txt`](docs/COMANDOS.txt) (e no `!ajuda`, dentro do Discord).
+
+## Como é organizado
+
+| Arquivo | Para que serve |
+|---|---|
+| `bot_erros.py` | O bot: OCR, banco de prints, `!buscar`, soluções, indexação e os comandos de relatório. |
+| `relatorios.py` | Busca nos relatórios (OU/E, filtros, plural, "você quis dizer", trecho em negrito). |
+| `catalogo_relatorios.py` | Monta o catálogo (`relatorios.db`) a partir da pasta com os PDFs e exportações do levantamento. |
+| `mapa_menus.py` | Acha cada tela nos prints do menu (OCR) e desenha a elipse vermelha. |
+| `menus/` | Os prints do menu (não vão para o GitHub; veja [`menus/LEIA-ME.md`](menus/LEIA-ME.md)). |
+| `docs/` | Comandos e histórico de melhorias. |
 
 ## Instalação
 
-Precisa de **Python 3.10+** e do **Tesseract** com o idioma português (`por`), em `C:\Program Files\Tesseract-OCR\`
-(ou defina `TESSERACT_CMD`).
+Precisa de **Python 3.10+** e do **Tesseract** com o idioma português (`por`), no caminho padrão
+`C:\Program Files\Tesseract-OCR\` (ou defina `TESSERACT_CMD`).
 
 ```bash
 pip install -r requirements.txt
 ```
 
-1. No Discord Developer Portal, crie o bot e ligue a intent **Message Content**.
+1. No [Discord Developer Portal](https://discord.com/developers/applications), crie o bot e ligue a intent **Message Content**.
 2. Copie `.env.exemplo` para `.env` e coloque o token em `DISCORD_TOKEN`. O `.env` nunca vai para o Git.
-3. `python bot_erros.py`
+3. Rode:
 
-Na primeira vez, se já existir um `prints.db` da versão 1, o bot converte o banco e guarda uma cópia. Depois, rode `!indexar`.
+```bash
+python bot_erros.py
+```
+
+Na primeira vez, se já existir um `prints.db` da versão 1, o bot converte o banco sozinho e guarda uma cópia
+(`prints_backup_DATA.db`). Depois, rode `!indexar` uma vez para completar os prints antigos.
 
 ### Para os comandos de relatório (opcional)
 
 1. Junte os PDFs e exportações do SPICA numa pasta (`V7`, `V7 TODOS`, `V8` e `V8 TODOS`) e aponte a variável de ambiente
-   `RELATORIOS_DIR` para ela.
-2. Gere o catálogo: `python catalogo_relatorios.py` (ou `!atualizarrelatorios` no Discord).
+   `RELATORIOS_DIR` para ela. A pasta `V7`/`V8` guarda só os que citam imposto; `V7 TODOS`/`V8 TODOS` guarda tudo.
+2. Gere o catálogo: `python catalogo_relatorios.py` (ou `!atualizarrelatorios` no Discord). Também cria uma planilha de
+   revisão por versão (`relatorios_v7_rotinas.xlsx`, `relatorios_v8_rotinas.xlsx`).
+3. Para o "Ver onde fica no menu", monte a pasta `menus/` e rode `python mapa_menus.py`
+   ([instruções](menus/LEIA-ME.md)).
 
 ## Privacidade
 
-O `prints.db` guarda o texto dos prints dos clientes. Ele e o `.env` estão no `.gitignore` e não devem ser publicados.
+O `prints.db` guarda o **texto dos prints dos clientes**. Ele, o `.env` e os bancos de catálogo estão no `.gitignore` e
+**não devem ser publicados**.
+
+## O que mudou da v1 para a v2
+
+Token fora do código, vários prints por mensagem, OCR fora do loop do bot, busca sem acento e por print, soluções,
+indexação retomável, os comandos de relatórios do SPICA 7 e 8 e o menu com a tela circulada. O histórico completo está em
+[`docs/MELHORIAS.md`](docs/MELHORIAS.md).

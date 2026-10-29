@@ -1,5 +1,6 @@
 discord.py>=2.3
 pillow
+numpy
 pytesseract
 rapidfuzz>=3.0
 # só para o !atualizarrelatorios e o catalogo_relatorios.py (ler os PDFs e as exportações do levantamento)

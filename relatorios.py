@@ -47,6 +47,7 @@ class Arquivo:
     nome_n: str = ""
     cab_n: str = ""
     texto_n: str = ""
+    id_layout: str = ""  # código do layout impresso no rodapé do PDF ("V020_11"); a V7 e as exportações não têm
 
 
 @dataclass
@@ -99,16 +100,26 @@ def limpar_titulo(titulo):
     return " ".join(limpo.split()).strip(" -–")
 
 
+ID_DO_PDF = re.compile(r"\(?([A-Za-z]\d{3}_\d+)\)")
+
+
+def id_do_pdf(texto):
+    """Código do layout que o SPICA imprime no rodapé de cada página do PDF, como '(V020_11)'. Vale o mais repetido."""
+    achados = Counter(m.upper() for m in ID_DO_PDF.findall(texto))
+    return achados.most_common(1)[0][0] if achados else ""
+
+
 def rotulo(arq):
-    """Nome do layout para mostrar. Exportação que começa direto pelas colunas não tem título: usa as colunas."""
+    """Nome do layout para mostrar, com o código do layout na frente quando o PDF traz. Exportação que começa direto
+    pelas colunas não tem título: usa as colunas."""
     titulo = limpar_titulo(arq.titulo)
-    if titulo:
-        return titulo
-    colunas = [c.strip() for c in arq.colunas.split(" | ") if c.strip()]
-    if arq.tipo == "exportacao" and colunas:
-        return f"Layout sem título ({len(colunas)} colunas)"
-    numero = re.search(r"_(\d+)\.pdf$", arq.nome_arquivo, re.I)  # os PDFs vêm numerados pelo layout
-    return f"Layout {numero.group(1)}" if numero else arq.nome_arquivo
+    if not titulo:
+        colunas = [c.strip() for c in arq.colunas.split(" | ") if c.strip()]
+        if arq.tipo == "exportacao" and colunas:
+            return f"Layout sem título ({len(colunas)} colunas)"
+        numero = re.search(r"_(\d+)\.pdf$", arq.nome_arquivo, re.I)  # os PDFs vêm numerados pelo layout
+        titulo = f"Layout {numero.group(1)}" if numero else arq.nome_arquivo
+    return f"{arq.id_layout} · {titulo}" if arq.id_layout else titulo
 
 
 def _num_colunas(arq):
@@ -280,6 +291,8 @@ class Catalogo:
             arq.nome_n = normalizar(f"{rotina.nome} {rotina.area} {limpar_titulo(arq.titulo)}")
             arq.cab_n = normalizar(arq.colunas)
             arq.texto_n = normalizar(arq.texto)
+            if tipo == "pdf":
+                arq.id_layout = id_do_pdf(arq.texto)
             rotina.arquivos.append(arq)
             self.arquivos.append((rotina, arq))
             palavras.update(w for w in (arq.nome_n + " " + arq.cab_n).split() if len(w) >= 4 and not w.isdigit())

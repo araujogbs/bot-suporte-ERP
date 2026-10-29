@@ -134,6 +134,104 @@ ROTINAS = {  # código -> (nome da tela no menu, aba > grupo do menu de Relatór
     "x475": ("DRE", "R.Financ. > Auxiliares"),
 }
 
+# Telas que entraram quando a V8 foi refeita com o menu inteiro (prints do menu de 29/10/2026). As exportações sem
+# código no nome (ods-...) foram ligadas ao item do menu pelo nome do arquivo.
+_B, _E, _G, _G2, _F, _A = "R.Básicos", "R.Estoque", "R.Gerenciais", "R.Gerenciais II", "R.Financ.", "R. Auxiliares"
+MENU_V8 = {
+    "u040": ("Produtos Por Tipo", f"{_B} > Produtos"), "u060": ("Produtos por Fornecedor", f"{_B} > Produtos"),
+    "u080": ("Produtos Com Controle de Lote", f"{_B} > Produtos"), "u100": ("Produtos Sem Controle de Lote", f"{_B} > Produtos"),
+    "u120": ("Produtos Sem Registro na ANVISA", f"{_B} > Produtos"), "u140": ("Produtos Por Registro na ANVISA", f"{_B} > Produtos"),
+    "u180": ("Produtos Sem Foto", f"{_B} > Produtos"), "u200": ("Produtos Por Família", f"{_B} > Produtos"),
+    "u220": ("Produtos Sem Família", f"{_B} > Produtos"),
+    "u300": ("Tabela de Preços", f"{_B} > Tabelas de Preço"), "ods-tabela-precos": ("Exportação de Tabela de Preços", f"{_B} > Tabelas de Preço"),
+    "u340": ("Caixas", f"{_B} > Caixas"), "u360": ("Caixas Vendidas", f"{_B} > Caixas"), "u380": ("Caixas com Valor", f"{_B} > Caixas"),
+    "u400": ("Documentos a Vencer por Fornecedor", f"{_B} > Outras"), "u420": ("Documentos a Vencer por Cliente", f"{_B} > Outras"),
+    "u440": ("Registros na ANVISA a Vencer", f"{_B} > Outras"), "u460": ("Clientes Bloqueados", f"{_B} > Outras"),
+
+    "v020": ("Posição do Estoque", f"{_E} > Posição do Estoque"), "v060": ("Posição do Estoque Com Previsões", f"{_E} > Posição do Estoque"),
+    "v080": ("Posição do Estoque Com Valorização", f"{_E} > Posição do Estoque"),
+    "v100": ("Posição do Estoque Que Está Fora", f"{_E} > Posição do Estoque"),
+    "v120": ("Posição do Estoque Com Indicador de Propriedade", f"{_E} > Posição do Estoque"),
+    "v140": ("Inventário Valorizado", f"{_E} > Posição do Estoque"),
+    "ods-pos-estoque": ("Posição do Estoque - Exportação", f"{_E} > Posição do Estoque"),
+    "ods-pos-estoque-almox": ("Posição do Estoque - Exportação (Detalhada por Almoxarifado)", f"{_E} > Posição do Estoque"),
+    "ods-pos-estoque-consig": ("Posição do Estoque - Exportação (Detalhada por Consignação)", f"{_E} > Posição do Estoque"),
+    "v200": ("Posição do Estoque - Ativo Fixo", f"{_E} > Posição do Estoque"), "v180": ("Posição do Estoque por RVS", f"{_E} > Posição do Estoque"),
+    "v320": ("Movimentação do Estoque", f"{_E} > Movimentações"), "ods-mov-estoque": ("Movimentação do Estoque - Exportação", f"{_E} > Movimentações"),
+    "v360": ("Etiquetas Impressas (Movimentação de Etiquetas)", f"{_E} > Movimentações"),
+    "v340": ("Movimentação de Estoque de Produtos - Kardex", f"{_E} > Movimentações"),
+    "v220": ("Produtos em Falta", f"{_E} > Em Falta"), "v240": ("Produtos em Falta nas Caixas", f"{_E} > Em Falta"),
+    "v260": ("Produtos em Falta em Pedidos", f"{_E} > Em Falta"), "v300": ("Pendências com Estoque Disponível", f"{_E} > Em Falta"),
+    "v680": ("Produtos com Lotes a Vencer", f"{_E} > Auxiliares"), "v720": ("Produtos em Quarentena", f"{_E} > Auxiliares"),
+    "v780": ("Solicitações para o Almoxarifado", f"{_E} > Auxiliares"), "v730": ("Relatório de Não Conformes", f"{_E} > Auxiliares"),
+    "ods-rastreabilidade": ("Rastreabilidade (Exportação)", f"{_E} > Auxiliares"),
+    "v790": ("Solicitações Pendentes no Almoxarifado", f"{_E} > Auxiliares"),
+    "v380": ("Requisições", f"{_E} > Compras / Entrada de Mercadorias"), "v400": ("Pedidos de Compra", f"{_E} > Compras / Entrada de Mercadorias"),
+    "v420": ("Compras Sintética", f"{_E} > Compras / Entrada de Mercadorias"), "v480": ("Compras Mês a Mês", f"{_E} > Compras / Entrada de Mercadorias"),
+    "w480": ("Compras Mês a Mês - Exportação", f"{_E} > Compras / Entrada de Mercadorias"),
+    "v520": ("Pré-Compra", f"{_E} > Compras / Entrada de Mercadorias"), "v540": ("Ultimas Compras", f"{_E} > Compras / Entrada de Mercadorias"),
+    "v560": ("Entradas de Mercadorias Registradas", f"{_E} > Compras / Entrada de Mercadorias"),
+    "v580": ("Curva ABC por Fornecedor", f"{_E} > Compras / Entrada de Mercadorias"),
+    "v600": ("Curva ABC por Produto", f"{_E} > Compras / Entrada de Mercadorias"),
+
+    "w010": ("Cirurgias", f"{_G} > Cirurgias"), "w020": ("Cirurgias Com Valor", f"{_G} > Cirurgias"),
+    "w030": ("Cirurgias por Produto", f"{_G} > Cirurgias"), "w040": ("Cirurgias por Data de Faturamento", f"{_G} > Cirurgias"),
+    "w050": ("Cirurgias por Instrumentador", f"{_G} > Cirurgias"), "w070": ("Cirurgias com Filtros", f"{_G} > Cirurgias"),
+    "w120": ("Cirurgias (Gráfico)", f"{_G} > Cirurgias"), "w125": ("Cirurgias - Materiais Orçados", f"{_G} > Cirurgias"),
+    "w130": ("Saídas de Caixas", f"{_G} > Análises de Caixas"), "w140": ("Análise de Saídas de Caixas", f"{_G} > Análises de Caixas"),
+    "w150": ("Previsão de Devolução", f"{_G} > Análises de Caixas"), "w160": ("Caixas Perm. - Média de Vendas", f"{_G} > Análises de Caixas"),
+    "w180": ("Orçamentos", f"{_G} > Orçamentos"), "w190": ("Orçamentos com Filtros", f"{_G} > Orçamentos"),
+    "w200": ("Analítico de Orçamentos", f"{_G} > Orçamentos"), "w210": ("Análise Sintética de Orçamentos", f"{_G} > Orçamentos"),
+    "w215": ("Análise de Orçamentos", f"{_G} > Orçamentos"),
+    "w220": ("Programação de Entrega", f"{_G} > Pedidos de Venda"), "w230": ("Pedidos (Documentação)", f"{_G} > Pedidos de Venda"),
+    "w240": ("Pedidos a Entregar", f"{_G} > Pedidos de Venda"), "w250": ("Pedidos Pendentes", f"{_G} > Pedidos de Venda"),
+    "w260": ("Pedidos Cancelados", f"{_G} > Pedidos de Venda"), "w270": ("Pedidos Aguardando Faturamento", f"{_G} > Pedidos de Venda"),
+    "w275": ("Pedidos com Quantidades Glosadas", f"{_G} > Pedidos de Venda"),
+    "w280": ("Consignações", f"{_G} > Consignações"), "w290": ("Consignações - Exportação p/ Excel", f"{_G} > Consignações"),
+    "w300": ("Relatório de Pendências de Consignados", f"{_G} > Consignações"),
+    "w310": ("Produtos em Consignação por Período", f"{_G} > Consignações"),
+    "w320": ("Materiais Consignados de Terceiros", f"{_G} > Consignações"),
+    "w325": ("Programação de Entrega de Consignados", f"{_G} > Consignações"),
+    "w330": ("Pedidos de Venda - Exportação", f"{_G} > Análises de Vendas"), "w335": ("Pedidos de Venda - Exportação II", f"{_G} > Análises de Vendas"),
+    "w340": ("Vendas por Período", f"{_G} > Análises de Vendas"), "w350": ("Vendas por Produto - Sintética", f"{_G} > Análises de Vendas"),
+    "w360": ("Vendas por Produto (Mês/Ano)", f"{_G} > Análises de Vendas"),
+    "w370": ("Última Venda de Clientes (com Pedido)", f"{_G} > Análises de Vendas"),
+    "w380": ("Últimas Vendas por Cliente", f"{_G} > Análises de Vendas"), "w390": ("Mercadorias Devolvidas", f"{_G} > Análises de Vendas"),
+    "w400": ("Produtos Sem Venda", f"{_G} > Análises de Vendas"), "w410": ("Análise de Vendas por Tipo / Subtipo", f"{_G} > Análises de Vendas"),
+    "w420": ("Gráficos - Vendas por Produto", f"{_G} > Análises de Vendas"),
+    "w430": ("Análise de Lucratividade de Orçamentos", f"{_G} > Análise de Lucratividade"),
+    "w440": ("Análise de Lucratividade de Pedidos de Venda", f"{_G} > Análise de Lucratividade"),
+    "w510": ("Relatório de Licitações Ganhas", f"{_G} > Licitações"), "w520": ("Relatório de Licitações Perdidas", f"{_G} > Licitações"),
+    "w530": ("Acompanhamento de Licitações", f"{_G} > Licitações"), "w535": ("Relatório de Licitações a Definir", f"{_G} > Licitações"),
+    "w536": ("Relatório de Licitações Atendidas", f"{_G} > Licitações"),
+    "w540": ("Controle de Saídas Avulsas", f"{_G} > Saídas Avulsas"),
+    "w560": ("Relação de Lotes", f"{_G} > Auxiliares"), "w570": ("Registro Histórico do Produto", f"{_G} > Auxiliares"),
+    "w580": ("Relatório das Saídas na Expedição", f"{_G} > Auxiliares"), "w610": ("Canhotos Não Recebidos", f"{_G} > Auxiliares"),
+
+    "w625": ("Faturamento Com Filtros", f"{_G2} > Faturamento e Analises"), "w630": ("Faturamento por Tipo de Cirurgia", f"{_G2} > Faturamento e Analises"),
+    "w635": ("Faturamento Por Cirurgia / Procedimento", f"{_G2} > Faturamento e Analises"),
+    "w645": ("Faturamento por Vendedor / Faixa de Lucro", f"{_G2} > Faturamento e Analises"),
+    "w650": ("Faturamento Por Médico", f"{_G2} > Faturamento e Analises"), "w660": ("Faturamento por Lote", f"{_G2} > Faturamento e Analises"),
+    "w665": ("Faturamento por NCM", f"{_G2} > Faturamento e Analises"), "w675": ("Faturamento Mês a Mês", f"{_G2} > Faturamento e Analises"),
+    "w680": ("Relatório de Faturamento", f"{_G2} > Faturamento e Analises"),
+    "w690": ("Faturamento Mês a Mês c/ Gráfico", f"{_G2} > Faturamento e Analises"),
+    "w695": ("Faturamento Comparativo Anual c/ Gráfico", f"{_G2} > Faturamento e Analises"),
+    "w700": ("Faturamento por Vendedor Mês a Mês c/ Gráfico", f"{_G2} > Faturamento e Analises"),
+    "w705": ("Notas Fiscais Emitidas sem Vendedor", f"{_G2} > Faturamento e Analises"),
+    "w720": ("Notas Fiscais de Saída e Entrada", f"{_G2} > Faturamento e Analises"),
+    "w795": ("Vendas de Produtos Tributados PIS/COFINS", f"{_G2} > PIS/COFINS"), "w800": ("Apuração de PIS/COFINS", f"{_G2} > PIS/COFINS"),
+    "w805": ("Apuração de PIS/COFINS Analítica", f"{_G2} > PIS/COFINS"),
+    "w810": ("Apuração de PIS/COFINS - Data Recebimento", f"{_G2} > PIS/COFINS"),
+    "w815": ("Apuração de PIS/COFINS Analítica - NF Recebidas", f"{_G2} > PIS/COFINS"),
+    "w830": ("Faturamento de Serviços com Filtros", f"{_G2} > Faturamento de Serviços"),
+    "w835": ("Faturamento de Serviços por Conta do Plano", f"{_G2} > Faturamento de Serviços"),
+
+    "w900": ("Etiquetas - Individuais", f"{_A} > Etiquetas (Papel)"), "w905": ("Etiquetas - Clientes Selecionados", f"{_A} > Etiquetas (Papel)"),
+    "w910": ("Etiquetas - Aniversários", f"{_A} > Etiquetas (Papel)"), "w915": ("Etiquetas - Remetente", f"{_A} > Etiquetas (Papel)"),
+    "w920": ("Etiquetas - Fornecedores", f"{_A} > Etiquetas (Papel)"), "w925": ("Etiquetas - Para o Correio", f"{_A} > Etiquetas (Papel)"),
+    "w930": ("Etiquetas - Produto (Jato)", f"{_A} > Etiquetas (Papel)"),
+}
+
 # Nome que a planilha 6699 usa para a tela, quando o nome do arquivo não deixa óbvio
 NOME_NA_PLANILHA = {
     "w620": "Faturamento",
@@ -519,6 +617,8 @@ def nome_e_area(versao, rotina, arqs):
     if versao == "V8":
         if rotina in ROTINAS:
             return ROTINAS[rotina]
+        if rotina in MENU_V8:
+            return MENU_V8[rotina]
         return nome_pelo_titulo([a["titulo"] for a in arqs if a["titulo"]]), "SEM CLASSIFICAÇÃO"
     if rotina in MENU_V7:
         return MENU_V7[rotina]

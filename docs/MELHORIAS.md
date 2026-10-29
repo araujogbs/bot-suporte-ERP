@@ -63,6 +63,8 @@ Versão anterior: tag `v1.0`.
 - [x] Sem datas nos nomes dos layouts; exportação sem título vira "Layout sem título (N colunas)"; cabeçalho de várias linhas lido por inteiro
 - [x] Marcação de "cita imposto" (★) tirada da resposta
 - [x] Incluir a V7: `!relatoriov7` e `!relatoriov8` (o `!relatorio` sem versão só explica o uso). Catálogo com 233 telas da V7 e 226 da V8, todas com nome e aba > grupo reais do menu (lidos dos prints do menu do SPICA)
+- [x] **Ver onde fica no menu** (`mapa_menus.py`): o menu 📍 da resposta envia o print do menu do SPICA com a tela circulada em vermelho. O OCR acha cada item nos prints; variantes que só diferem pelo numeral romano (Modelo I… VII) se resolvem pela ordem do menu
+- [x] O layout mostra o código impresso no rodapé do PDF (ex.: `V020_11`), que distingue layouts com o mesmo nome (só PDFs da V8)
 - [ ] Incluir o menu inteiro de Relatórios, para avisar "essa tela existe mas não temos arquivo"
 - [ ] Rotinas da planilha 6699 sem arquivo: *Compras Sintética* e *Compras/Entrada de Mercadorias*
 - [ ] `u260` Produtos Por NCM e `u480` Produtos - TUSS citam imposto mas não estão na aba SPICA 8 da planilha 6699

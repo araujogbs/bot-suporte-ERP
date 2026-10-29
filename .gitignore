@@ -1,7 +1,16 @@
+# segredos
 .env
+
+# dados do suporte e catálogos gerados (têm texto de prints de clientes e dos relatórios do SPICA)
 *.db
 *.db.novo
 prints_backup_*.db
+relatorios_*_rotinas.xlsx
+
+# prints do menu do SPICA e o índice gerado por eles (veja menus/LEIA-ME.md)
+menus/*.jpg
+menus/*.png
+menus/indice.json
+
 __pycache__/
 *.pyc
-relatorios_*_rotinas.xlsx

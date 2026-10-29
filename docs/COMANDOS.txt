@@ -80,9 +80,16 @@ Reação ✅ (sem comando)
     arquivos" envia o arquivo só para quem escolher.
     † = cobertura parcial: nem todos os layouts da tela foram salvos.
 
+    O menu "Ver onde fica no menu" envia o print do menu do SPICA com a
+    tela circulada em vermelho, para qualquer tela da resposta, só para
+    quem escolher.
+
 !atualizarrelatorios
     Relê a pasta C:\6699_Levantamento_Inicial (V7 e V8) e refaz o catálogo.
     Usar quando entrar relatório novo. Leva uns 20 segundos.
+    Tela nova só ganha o print do menu depois de rodar, no computador do bot:
+        python mapa_menus.py
+    (lê os prints da pasta menus\ e acha onde cada tela está; leva ~1 minuto)
 
 
 4) INDEXAR OS PRINTS (LER O HISTÓRICO)

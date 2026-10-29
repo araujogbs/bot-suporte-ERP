@@ -17,6 +17,7 @@ from PIL import Image
 from rapidfuzz import fuzz, process
 
 import relatorios  # busca nos relatórios e exportações do SPICA (catálogo gerado pelo catalogo_relatorios.py)
+import mapa_menus  # print do menu do SPICA com a tela circulada em vermelho (índice gerado pelo mapa_menus.py)
 
 PASTA = Path(__file__).resolve().parent
 
@@ -822,11 +823,30 @@ class BaixarArquivo(discord.ui.Select):
         await interaction.response.send_message(file=discord.File(caminho), ephemeral=True)
 
 
+class VerNoMenu(discord.ui.Select):
+    """Menu com as telas da resposta: quem escolhe recebe o print do menu do SPICA com a tela circulada, só para ele."""
+
+    def __init__(self, telas):
+        opcoes = [discord.SelectOption(label=t.nome[:100], value=f"{t.versao}|{t.codigo}", description=t.area[:100], emoji="📍")
+                  for t in telas[:25]]
+        super().__init__(placeholder="📍 Ver onde fica no menu...", options=opcoes)
+
+    async def callback(self, interaction):
+        versao, codigo = self.values[0].split("|", 1)
+        png = await asyncio.to_thread(mapa_menus.desenhar, versao, codigo)
+        if png is None:
+            await interaction.response.send_message("❌ Ainda não tenho o print do menu dessa tela.", ephemeral=True)
+            return
+        await interaction.response.send_message(file=discord.File(io.BytesIO(png), "menu.png"), ephemeral=True)
+
+
 class ArquivosView(discord.ui.View):
-    def __init__(self, arquivos):
+    def __init__(self, arquivos, telas=()):
         super().__init__(timeout=900)
         self.mensagem = None
         self.add_item(BaixarArquivo(arquivos))
+        if telas:
+            self.add_item(VerNoMenu(telas))
 
     async def on_timeout(self):
         for item in self.children:
@@ -839,13 +859,13 @@ class ArquivosView(discord.ui.View):
 
 
 def embed_do_relatorio(consulta, busca):
-    """Embed com as telas encontradas e o menu para baixar os arquivos. Retorna (embed, [(tela, arquivo, rótulo)])."""
+    """Embed com as telas encontradas e o menu para baixar os arquivos. Retorna (embed, [(tela, arquivo, rótulo)], [telas])."""
     embed = discord.Embed(title=f"📑 {consulta[:200]}", color=0x2B88D8)
     filtro = {"pdf": " · só PDF", "exportacao": " · só exportações"}.get(busca.tipo, "")
     expressao = " ou ".join(" e ".join(f"`{termo}`" for termo in grupo) for grupo in busca.grupos)  # `venda` e `custo` / `ipi` ou `icms`
     embed.description = f"Telas que têm {expressao}\n**{busca.total_telas}** tela(s) · **{busca.total_layouts}** layout(s){filtro}"
     tamanho = len(embed.title) + len(embed.description)
-    arquivos, mostradas = [], 0
+    arquivos, telas, mostradas = [], [], 0
 
     for achado in busca.achados[:relatorios.MAX_ROTINAS]:
         rotina = achado.rotina
@@ -865,13 +885,14 @@ def embed_do_relatorio(consulta, busca):
         tamanho += len(titulo) + len(valor)
         embed.add_field(name=titulo, value=valor, inline=False)
         arquivos += [(rotina.nome, arq, rotulo) for (arq, _, _), rotulo in zip(achado.layouts, rotulos)]
+        telas.append(rotina)
         mostradas += 1
 
     rodape = f"† cobertura parcial: nem todos os layouts desta tela foram salvos · só a {busca.versao}"
     if busca.total_telas > mostradas:
         rodape = f"+{busca.total_telas - mostradas} tela(s): refine a busca · " + rodape
     embed.set_footer(text=rodape)
-    return embed, arquivos
+    return embed, arquivos, telas
 
 
 @bot.command(aliases=["relatorios"])
@@ -919,8 +940,9 @@ async def buscar_relatorio(ctx, consulta, versao):
         await ctx.send(texto + "\n_Só acho o que aparece nos arquivos que foram salvos no levantamento._")
         return
 
-    embed, arquivos = embed_do_relatorio(consulta, busca)
-    view = ArquivosView(arquivos)
+    embed, arquivos, telas = embed_do_relatorio(consulta, busca)
+    com_menu = [t for t in telas if mapa_menus.tem_posicao(t.versao, t.codigo)]
+    view = ArquivosView(arquivos, com_menu)
     view.mensagem = await ctx.send(embed=embed, view=view)
 
 
@@ -945,6 +967,7 @@ async def atualizarrelatorios(ctx):
             await status.edit(content="❌ Não consegui ler a pasta dos relatórios. Veja o terminal do bot.")
             return
         catalogo.carregar()
+        mapa_menus.recarregar()
         await status.edit(content=f"✅ Catálogo atualizado: **{telas}** telas e **{arquivos}** arquivos.")
 
 
@@ -975,7 +998,7 @@ async def ajuda(ctx):
         "Descobre **qual relatório ou exportação do SPICA 8 (ou 7) tem** uma informação.\n"
         "`!relatoriov8 ipi, icms` — um **ou** outro · `!relatoriov7 ipi + icms` — os **dois**\n"
         "`!relatoriov8 pdf paciente` só PDFs · `!relatoriov7 excel base de calculo` só exportações\n"
-        "Pelo menu da resposta você baixa o arquivo."
+        "Pelos menus da resposta você baixa o arquivo e vê, no print do menu do SPICA, onde a tela fica (circulada em vermelho)."
     ))
     embed.add_field(name="🔒 Administradores", inline=False, value=(
         "`!contarmensagens <#canal> [limite]` — conta as mensagens de um canal"
