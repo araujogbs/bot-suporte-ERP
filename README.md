@@ -1,13 +1,49 @@
-# spica-bot-suporte — v2.0
+# bot-suporte-ERP — v2.0
 
-Bot de Discord para o time de suporte do SPICA. Ele **lê os prints de erro** postados nos canais (OCR), guarda a
-**solução** de cada erro e ajuda a **achar em qual relatório ou exportação do SPICA 7 e 8 está uma informação**, mostrando
-onde a tela fica no menu.
+Bot de Discord para o time de suporte de um ERP. Ele **lê os prints de erro** postados nos canais (OCR), guarda a
+**solução** de cada erro e ajuda a **achar em qual relatório ou exportação está uma informação**, mostrando onde a tela
+fica no menu. Hoje atende o **SPICA 7 e 8**.
+
+A parte de erros (OCR, busca e soluções) não depende do sistema e serve para qualquer ERP. Só os comandos de relatório
+(`!relatoriov7` e `!relatoriov8`, o catálogo e os prints de menu) são específicos do SPICA.
 
 > Projeto de uso interno do suporte. O SPICA é um software da Joinner Sistemas; este projeto não é afiliado nem
 > mantido por ela.
 
 A primeira versão, mais simples, está na tag [`v1.0`](../../releases/tag/v1.0).
+
+## Por que este bot existe
+
+Foi uma **iniciativa de Gabriel Araújo**, do suporte, para tirar o conhecimento do time de dentro do histórico do chat.
+
+### O gargalo
+
+- **Os mesmos erros voltam, e as respostas ficavam enterradas no Discord.** Os prints de erro e as soluções ficavam
+  espalhados em milhares de mensagens (o banco já passa de **13,5 mil prints**). Para achar um erro parecido era preciso
+  lembrar quem resolveu ou rolar o histórico, e a solução, quando existia, era uma resposta perdida no meio da conversa.
+- **Descobrir em qual relatório está um campo era manual.** O SPICA tem centenas de relatórios e exportações, cada um com
+  vários layouts, nas versões 7 e 8. Responder "qual relatório mostra o IPI?" ou "onde fica essa tela no menu?" pedia abrir
+  as telas uma a uma.
+
+### Como o bot resolve
+
+- **Memória compartilhada do suporte.** Todo print postado é lido e indexado. Quem recebe um erro cola o print (ou digita o
+  texto) e o bot mostra os casos parecidos, com data, link da conversa original e a solução registrada.
+- **A solução fica junto do erro.** Quem resolve responde ao print com `!solucao` (ou reage com ✅) e, daí em diante, todo
+  mundo vê a solução ao buscar aquele erro.
+- **Catálogo de relatórios pesquisável.** `!relatoriov7` e `!relatoriov8` dizem em quais telas, layouts e campos uma informação
+  aparece (hoje são **459 telas e 1.337 arquivos** catalogados), com o arquivo para baixar e o código do layout.
+- **A tela localizada no menu.** O bot envia o print do menu do SPICA com a tela circulada em vermelho, para quem está
+  atendendo achar sem procurar.
+
+### Como a equipe usa hoje
+
+O bot roda no próprio Discord do suporte, então a **equipe toda** usa sem instalar nada:
+
+1. Chegou um erro? Cola o print com `!buscar` e vê se já foi resolvido.
+2. Resolveu algo novo? Responde ao print com `!solucao` (ou ✅). A base cresce sozinha com o uso.
+3. Dúvida sobre relatório? `!relatoriov8 <campo>` ou `!relatoriov7 <campo>`, e o menu **📍 Ver onde fica no menu**.
+4. Quem administra o bot usa `!indexar` e `!reocr` para ler o histórico e manter a base em dia.
 
 ## O que ele faz
 
